@@ -1,0 +1,225 @@
+﻿@model WebApplication7.Models.Student
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<div class="container">
+    <h2>Create Student</h2>
+    <style>
+
+        #createForm {
+            background-color: burlywood;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: initial;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid double;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .actionButton {
+            background-color: darkgreen;
+            color: white;
+            padding: 9px 13px;
+            border: double;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 50%;
+        }
+
+            .actionButton:hover {
+                background-color: Highlight;
+            }
+
+        .invalid-feedback {
+            color: brown;
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+
+    <form id="createForm" class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-md-2" for="FirstName">First Name:</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="FirstName" name="FirstName" required>
+                <div class="invalid-feedback"></div>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2" for="LastName">Last Name:</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="LastName" name="LastName" required>
+                <div class="invalid-feedback"></div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="DateOfBirth">Date of Birth:</label>
+            <div class="col-md-10">
+                <input type="date" class="form-control" id="DateOfBirth" name="DateOfBirth" required>
+                <div class="invalid-feedback"></div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2">Gender:</label>
+            <div class="col-md-10">
+                <label class="radio-inline">
+                    <input type="radio" id="Male" name="Gender" value="Male" required> Male
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" id="Female" name="Gender" value="Female"> Female
+                </label>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Address">Address:</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Address" name="Address" required>
+                <div class="invalid-feedback"></div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Email">Email:</label>
+            <div class="col-md-10">
+                <input type="email" class="form-control" id="Email" name="Email" required>
+                <div class="invalid-feedback"></div>
+
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Phone">Phone:</label>
+            <div class="col-md-10">
+                <input type="text" class="form-control" id="Phone" name="Phone" required>
+                <div class="invalid-feedback"></div>
+
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="taskSubmitButton" class="btn btn-primary">Create</button>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $('input[required]').on('input', function () {
+                validateField('#' + $(this).attr('id'));
+            });
+
+            $('#Email, #Phone').on('blur', function () {
+                var fieldId = '#' + $(this).attr('id');
+                validateField(fieldId);
+            });
+
+            $("#taskSubmitButton").click(function (e) {
+                e.preventDefault();
+
+                var isValid = true;
+                $('input[required]').each(function () {
+                    isValid = validateField('#' + $(this).attr('id')) && isValid;
+                });
+
+                if (!isValid) {
+                    return;
+                }
+
+                var formData = {
+                    FirstName: $('#FirstName').val(),
+                    LastName: $('#LastName').val(),
+                    DateOfBirth: $('#DateOfBirth').val(),
+                    Gender: $('input[name="Gender"]:checked').val(),
+                    Address: $('#Address').val(),
+                    Email: $('#Email').val(),
+                    Phone: $('#Phone').val()
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Create", "Student")',
+                    type: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        window.location.href = '@Url.Action("Index", "Student")';
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert('Error occurred while creating student.');
+                    }
+                });
+            });
+
+            function validateField(fieldId) {
+                var fieldValue = $(fieldId).val();
+                if (!fieldValue) {
+                    showValidationError(fieldId, 'This field is required.');
+                    return false;
+                }
+
+                if (fieldId === '#Email' && !validateEmail(fieldValue)) {
+                    showValidationError(fieldId, 'Please enter a valid email address.');
+                    return false;
+                } else if (fieldId === '#Phone' && !validatePhone(fieldValue)) {
+                    showValidationError(fieldId, 'Please enter a valid phone number (10 digits).');
+                    return false;
+                }
+
+                clearValidationError(fieldId);
+                return true;
+            }
+
+            function showValidationError(fieldId, message) {
+                $(fieldId).siblings('.invalid-feedback').text(message).show();
+            }
+
+            function clearValidationError(fieldId) {
+                $(fieldId).siblings('.invalid-feedback').hide();
+            }
+
+            function validateEmail(email) {
+                var emailPattern = /^[^\s]+[^\s]+\.[^\s]+$/;
+                return emailPattern.test(email);
+            }
+
+            function validatePhone(phone) {
+                var phonePattern = /^\d{10}$/;
+                return phonePattern.test(phone);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,61 @@
+﻿@model WebApplication7.Models.Student
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="container">
+    <h2>Student Details</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="dl-horizontal">
+                <dt>First Name:</dt>
+                <dd>@Html.DisplayFor(model => model.FirstName)</dd>
+
+                <dt>Last Name:</dt>
+                <dd>@Html.DisplayFor(model => model.LastName)</dd>
+
+                <dt>Date of Birth:</dt>
+                <dd>@Html.DisplayFor(model => model.DateOfBirth)</dd>
+
+                <dt>Gender:</dt>
+                <dd>@Html.DisplayFor(model => model.Gender)</dd>
+
+                <dt>Address:</dt>
+                <dd>@Html.DisplayFor(model => model.Address)</dd>
+
+                <dt>Email:</dt>
+                <dd>@Html.DisplayFor(model => model.Email)</dd>
+
+                <dt>Phone:</dt>
+                <dd>@Html.DisplayFor(model => model.Phone)</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <button id="editButton" class="btn btn-primary">Edit</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#editButton').click(function () {
+
+            $.ajax({
+                url: '@Url.Action("Edit", "Student", new { id = Model.StudentID })',
+                type: 'GET',
+                success: function (response) {
+                    $('body').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script>
